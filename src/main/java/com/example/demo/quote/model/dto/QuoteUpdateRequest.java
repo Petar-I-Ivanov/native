@@ -1,4 +1,7 @@
 package com.example.demo.quote.model.dto;
 
-public record QuoteUpdateRequest(String message) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record QuoteUpdateRequest(@NotBlank @Size(min = 3, max = 255) String message) {
 }

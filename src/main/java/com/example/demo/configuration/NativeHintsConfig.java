@@ -19,12 +19,19 @@ public class NativeHintsConfig {
 
 	public static class NativeRuntimeHints implements RuntimeHintsRegistrar {
 
+		private static final Set<String> RESOURCES = Set.of("db/*");
+
 		private static final Set<String> TYPES = Set.of("org.mariadb.jdbc.Configuration",
 				"org.mariadb.jdbc.Configuration$Builder", QuoteSearchCriteria.class.getName());
 
 		@Override
 		public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+			registerResources(hints);
 			registerTypes(hints);
+		}
+
+		private static void registerResources(RuntimeHints hints) {
+			RESOURCES.forEach(hints.resources()::registerPattern);
 		}
 
 		private static void registerTypes(RuntimeHints hints) {

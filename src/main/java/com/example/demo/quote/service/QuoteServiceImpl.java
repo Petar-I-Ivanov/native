@@ -11,7 +11,6 @@ import com.example.demo.quote.model.QuoteRepository;
 import com.example.demo.quote.model.dto.QuoteUpdateRequest;
 import com.example.demo.quote.model.dto.QuoteCreateRequest;
 import com.example.demo.quote.model.dto.QuoteSearchCriteria;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
@@ -22,7 +21,6 @@ import lombok.experimental.FieldDefaults;
 public class QuoteServiceImpl implements QuoteService {
 
 	QuoteRepository quoteRepository;
-	EntityManager entityManager;
 
 	@Override
 	public Quote create(QuoteCreateRequest request) {
@@ -37,14 +35,10 @@ public class QuoteServiceImpl implements QuoteService {
 	@Override
 	public List<Quote> search(QuoteSearchCriteria criteria) {
 		if (!hasText(criteria.search())) {
-			quoteRepository.findAll();
+			return quoteRepository.findAll();
 		}
 
-		var cb = entityManager.getCriteriaBuilder();
-		var cq = cb.createQuery(Quote.class);
-		var root = cq.from(Quote.class);
-		cq.select(root).where(cb.like(root.get("message"), "%" + criteria.search() + "%"));
-		return entityManager.createQuery(cq).getResultList();
+		return quoteRepository.findByMessageContainingIgnoreCase(criteria.search());
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
-import java.util.List;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +21,7 @@ import com.example.demo.quote.model.dto.QuoteCreateRequest;
 import com.example.demo.quote.model.dto.QuoteModel;
 import com.example.demo.quote.model.dto.QuoteSearchCriteria;
 import com.example.demo.quote.service.QuoteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
@@ -31,29 +32,30 @@ import lombok.experimental.FieldDefaults;
 public class QuoteApi {
 
 	QuoteService quoteService;
+	QuoteAssembler quoteAssembler;
 
 	@PostMapping
 	@ResponseStatus(CREATED)
-	public QuoteModel create(@RequestBody QuoteCreateRequest request) {
-		return new QuoteModel(quoteService.create(request));
+	public QuoteModel create(@Valid @RequestBody QuoteCreateRequest request) {
+		return quoteAssembler.toModel(quoteService.create(request));
 	}
 
 	@GetMapping("/{id}")
 	@ResponseStatus(OK)
 	public QuoteModel select(@PathVariable Long id) {
-		return new QuoteModel(quoteService.select(id));
+		return quoteAssembler.toModel(quoteService.select(id));
 	}
 
 	@GetMapping
 	@ResponseStatus(OK)
-	public List<QuoteModel> search(QuoteSearchCriteria criteria) {
-		return quoteService.search(criteria).stream().map(QuoteModel::new).toList();
+	public CollectionModel<QuoteModel> search(QuoteSearchCriteria criteria) {
+		return quoteAssembler.toCollectionModel(quoteService.search(criteria));
 	}
 
 	@PutMapping("/{id}")
 	@ResponseStatus(OK)
-	public QuoteModel update(@PathVariable Long id, @RequestBody QuoteUpdateRequest request) {
-		return new QuoteModel(quoteService.update(id, request));
+	public QuoteModel update(@PathVariable Long id, @Valid @RequestBody QuoteUpdateRequest request) {
+		return quoteAssembler.toModel(quoteService.update(id, request));
 	}
 
 	@DeleteMapping("/{id}")
